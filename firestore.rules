@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /restaurants/{restaurantId} {
+      // Public read for restaurant config (needed for QR menu display)
+      allow read: if true;
+      // Only the POS (authenticated) writes restaurant config
+      allow write: if signedIn();
+
+      // Tables: public read (QR scan), only POS (authenticated) writes
+      // table info, QR tokens, and live status (occupied/free).
+      match /tables/{tokenId} {
+        allow read: if true;
+        allow write: if signedIn();
+        allow update: if signedIn();
+      }
+
+      // Menu items/groups: public read, only POS (authenticated) writes
+      match /menu/{itemId} {
+        allow read: if true;
+        allow write: if signedIn();
+      }
+
+      match /menu_groups/{groupId} {
+        allow read: if true;
+        allow write: if signedIn();
+      }
+
+      // Sessions: public create (customer scan), POS can read/write
+      match /sessions/{sessionId} {
+        allow read: if true;
+        allow create: if true;
+        allow update: if true;
+      }
+
+      // Orders: customer creates; only POS (authenticated) can update
+      // status to accept/reject. Public read for the customer to track.
+      match /orders/{orderId} {
+        allow read: if true;
+        allow create: if true;
+        allow update: if signedIn();
+      }
+    }
+  }
+}
