@@ -68,6 +68,16 @@ Apply `firestore.rules` in the Firebase console (Firestore → Rules). They allo
 public reads for the menu/tables and public order creation, while authenticated
 POS writes manage menu, table status, and order acceptance/rejection.
 
+## Storage rules (required for images)
+
+Apply `storage.rules` in the Firebase console (Storage → Rules). These are
+**required** so the customer's phone browser can load menu item images and the
+restaurant logo (the POS stores public `alt=media` URLs). Without them, image
+files will be blocked and pictures will not appear in the app.
+
+- Reads are public (`allow read: if true`).
+- Writes (upload/delete) require Firebase Authentication (the POS).
+
 ## Deploy to Vercel
 
 1. Push this repo to GitHub.

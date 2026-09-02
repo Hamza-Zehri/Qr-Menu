@@ -91,6 +91,26 @@ export default function QRMenuPage() {
     }
   }, []);
 
+  // Live menu subscription so name/price/image changes appear in real time
+  // without reloading the page.
+  useEffect(() => {
+    if (!restaurantId) return;
+    const cs = collection(db, `restaurants/${restaurantId}/menu`);
+    const q = query(cs, where('isAvailable', '==', true), orderBy('sortOrder'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const items: MenuItem[] = snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        })) as MenuItem[];
+        setMenuItems(items);
+      },
+      (err) => console.error('Error streaming menu:', err)
+    );
+    return () => unsub();
+  }, [restaurantId]);
+
   const loadData = async (rid: string, token: string) => {
     try {
       const restDoc = await getDoc(doc(db, 'restaurants', rid));
@@ -123,7 +143,6 @@ export default function QRMenuPage() {
         runningTotal: td.runningTotal,
       });
 
-      await loadMenu(rid);
       await listenTableStatus(rid, token);
       await createSession(rid, token, td);
       setLoading(false);
@@ -153,21 +172,6 @@ export default function QRMenuPage() {
       );
       // If table just became available, clear any stale order satisfied state.
     });
-  };
-
-  const loadMenu = async (rid: string) => {
-    try {
-      const menuRef = collection(db, `restaurants/${rid}/menu`);
-      const q = query(menuRef, where('isAvailable', '==', true), orderBy('sortOrder'));
-      const snapshot = await getDocs(q);
-      const items: MenuItem[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as MenuItem[];
-      setMenuItems(items);
-    } catch (err) {
-      console.error('Error loading menu:', err);
-    }
   };
 
   const createSession = async (rid: string, token: string, tableData: any) => {

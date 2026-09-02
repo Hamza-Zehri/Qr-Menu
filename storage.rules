@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Storage rules for the QR Menu app.
+// - READ is public so any customer's phone browser can load menu item images
+//   and the restaurant logo from the public alt=media URL the POS stores.
+// - WRITE requires Firebase Authentication so only the POS can upload/delete.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /restaurants/{restaurantId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
