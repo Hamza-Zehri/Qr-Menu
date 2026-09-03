@@ -56,6 +56,7 @@ interface RestaurantConfig {
   taxPercent: number;
   serviceChargePercent: number;
   allowInstructions: boolean;
+  closed?: boolean;
 }
 interface OrderStatus {
   status: string;
@@ -68,6 +69,7 @@ export default function QRMenuPage() {
   const [restaurantId, setRestaurantId] = useState('');
   const [tableInfo, setTableInfo] = useState<TableInfo | null>(null);
   const [config, setConfig] = useState<RestaurantConfig | null>(null);
+  const [closed, setClosed] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -120,6 +122,24 @@ export default function QRMenuPage() {
     return () => unsub();
   }, [restaurantId]);
 
+  // Live restaurant config: reflect opening/closing (and other config changes)
+  // in real time without the customer needing to refresh.
+  useEffect(() => {
+    if (!restaurantId) return;
+    const restRef = doc(db, 'restaurants', restaurantId);
+    const unsub = onSnapshot(
+      restRef,
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          setClosed(!!data.config?.closed);
+        }
+      },
+      (err) => console.error('Error streaming restaurant config:', err)
+    );
+    return () => unsub();
+  }, [restaurantId]);
+
   const loadData = async (rid: string, token: string) => {
     try {
       const restDoc = await getDoc(doc(db, 'restaurants', rid));
@@ -130,6 +150,7 @@ export default function QRMenuPage() {
       }
       const data = restDoc.data();
       setConfig(data.config);
+      setClosed(!!data.config?.closed);
 
       const tableRef = doc(db, `restaurants/${rid}/tables/${token}`);
       const tableSnapshot = await getDoc(tableRef);
@@ -343,6 +364,35 @@ export default function QRMenuPage() {
 
   if (error) {
     return <div className="loading">{error}</div>;
+  }
+
+  // ── Restaurant closed gate: blocks all ordering regardless of table state ──
+  if (closed) {
+    return (
+      <div className="container closed-screen">
+        <div className="closed-card">
+          {config?.logoUrl ? (
+            <img src={config.logoUrl} alt="logo" className="closed-logo" />
+          ) : (
+            <div className="closed-icon">😴</div>
+          )}
+          <h1 className="closed-title">We&apos;re Closed</h1>
+          <p className="closed-sub">
+            {config?.name || 'Restaurant'} is currently closed for ordering.
+          </p>
+          <div className="closed-message">
+            <p>
+              We&apos;re not taking online orders right now. Please visit us again
+              during opening hours — we&apos;d love to serve you.
+            </p>
+          </div>
+          <p className="closed-bye">Thank you for your patience. See you soon 🌙</p>
+        </div>
+        <footer className="waiter-footer">
+          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+        </footer>
+      </div>
+    );
   }
 
   // ── Order confirmation: show exactly what the customer ordered ──

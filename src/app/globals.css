@@ -472,6 +472,79 @@ body.has-cart {
   font-weight: 600;
 }
 
+/* ── Restaurant Closed screen ── */
+.closed-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: clamp(16px, 4.5vw, 24px);
+}
+
+.closed-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: clamp(14px, 4vw, 20px);
+  padding: clamp(28px, 8vw, 40px) clamp(18px, 5vw, 28px);
+  text-align: center;
+  margin-top: clamp(20px, 6vw, 32px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.closed-logo {
+  width: clamp(72px, 22vw, 96px);
+  height: clamp(72px, 22vw, 96px);
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.closed-icon {
+  font-size: clamp(52px, 18vw, 78px);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.closed-title {
+  margin: 0 0 8px 0;
+  font-size: clamp(24px, 7vw, 32px);
+  color: #7c3aed;
+  line-height: 1.2;
+}
+
+.closed-sub {
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.closed-message {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 10px 0 0 0;
+}
+
+.closed-message p {
+  color: #6b7280;
+  font-size: clamp(13px, 3.8vw, 15px);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.closed-bye {
+  margin-top: 18px;
+  font-style: italic;
+  color: #7c3aed;
+  font-size: clamp(13px, 3.8vw, 15px);
+}
+
 /* â”€â”€â”€ Responsive adjustments for tablets / desktop â”€â”€â”€ */
 @media (min-width: 641px) {
   .container {
