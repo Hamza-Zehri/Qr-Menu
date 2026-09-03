@@ -55,6 +55,7 @@ interface QROrder {
 interface RestaurantConfig {
   name?: string;
   currencySymbol?: string;
+  logoUrl?: string;
 }
 
 const KITCHEN_STATUSES = new Set(['accepted', 'preparing', 'ready']);
@@ -204,7 +205,11 @@ export default function AdminDashboard() {
     <div className="admin">
       <div className="admin-header">
         <div className="admin-title">
-          <span className="admin-logo">🏪</span>
+          {config?.logoUrl ? (
+            <img src={config.logoUrl} alt="logo" className="admin-logo-img" />
+          ) : (
+            <span className="admin-logo">🏪</span>
+          )}
           <div>
             <h1>{config?.name || 'QR Menu Admin'}</h1>
             <p>Live dashboard — tables, cart and kitchen status</p>

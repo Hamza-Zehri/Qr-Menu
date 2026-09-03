@@ -56,7 +56,6 @@ interface RestaurantConfig {
   serviceChargePercent: number;
   allowInstructions: boolean;
 }
-
 interface OrderStatus {
   status: string;
   posOrderId?: number;
@@ -76,6 +75,7 @@ export default function QRMenuPage() {
   const [orderId, setOrderId] = useState('');
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     // [restaurantId]/[token] from URL
@@ -96,14 +96,14 @@ export default function QRMenuPage() {
   useEffect(() => {
     if (!restaurantId) return;
     const cs = collection(db, `restaurants/${restaurantId}/menu`);
-    const q = query(cs, where('isAvailable', '==', true), orderBy('sortOrder'));
+    const q = query(cs, orderBy('sortOrder'));
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const items: MenuItem[] = snap.docs.map((d) => ({
+        const items = (snap.docs.map((d) => ({
           id: d.id,
           ...d.data(),
-        })) as MenuItem[];
+        })) as MenuItem[]).filter((i) => i.isAvailable !== false);
         setMenuItems(items);
       },
       (err) => console.error('Error streaming menu:', err)
@@ -311,6 +311,33 @@ export default function QRMenuPage() {
     );
   }
 
+  // ── Landing screen: logo + cafe name + Start Ordering ──
+  if (!started) {
+    return (
+      <div className="container landing">
+        <div className="landing-card">
+          {config?.logoUrl ? (
+            <img src={config.logoUrl} alt="logo" className="landing-logo" />
+          ) : (
+            <div className="landing-logo landing-logo-fallback">🍽️</div>
+          )}
+          <h1 className="landing-name">{config?.name || 'Welcome'}</h1>
+          {config?.address && <p className="landing-address">{config.address}</p>}
+          <div className="landing-table">
+            <span>Table</span>
+            <b>{tableInfo?.tableName || ''}</b>
+          </div>
+          <button className="btn-primary landing-btn" onClick={() => setStarted(true)}>
+            Start Ordering
+          </button>
+          <p className="landing-hint">
+            Scan again or ask your host for help. Items you order go straight to the kitchen.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const categories = Array.from(new Set(menuItems.map((item) => item.groupId)));
   const filteredItems = selectedCategory
     ? menuItems.filter((item) => item.groupId === selectedCategory)
@@ -345,7 +372,10 @@ export default function QRMenuPage() {
   return (
     <div className={`container ${cart.length > 0 ? 'cart-spacer' : ''}`}>
       <div className="header">
-        <h1>{config?.name || 'Restaurant'}</h1>
+        <div className="header-brand">
+          {config?.logoUrl && <img src={config.logoUrl} alt="logo" className="header-logo" />}
+          <h1>{config?.name || 'Restaurant'}</h1>
+        </div>
         <p>Table: {tableInfo?.tableName} | {tableInfo?.floorName}</p>
       </div>
 
