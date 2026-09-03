@@ -44,6 +44,7 @@ interface TableInfo {
   status: string; // 'available' | 'occupied' | 'payment'
   activeOrderId?: number;
   runningTotal?: number;
+  grandTotal?: number;
 }
 
 interface RestaurantConfig {
@@ -149,6 +150,7 @@ export default function QRMenuPage() {
         status: td.status ?? 'available',
         activeOrderId: td.activeOrderId,
         runningTotal: td.runningTotal,
+        grandTotal: td.grandTotal,
       });
 
       await listenTableStatus(rid, token);
@@ -175,6 +177,7 @@ export default function QRMenuPage() {
               status: td.status ?? 'available',
               activeOrderId: td.activeOrderId,
               runningTotal: td.runningTotal,
+              grandTotal: td.grandTotal,
             }
           : prev
       );
@@ -198,7 +201,16 @@ export default function QRMenuPage() {
       try { storedId = window.localStorage.getItem(`${rid}:${token}:session`) || ''; } catch {}
 
       if (!activeSession) {
-        // No active session: create one, mark it owned by this phone.
+        // No active session for this phone's token.
+        // IMPORTANT: if the table is already occupied by another phone (under a
+        // different token or not yet paid), this phone must NOT claim ownership —
+        // it should see the "Please Wait" screen until the owner frees the table.
+        if (tableData.status && tableData.status !== 'available') {
+          ownerSessionIdRef.current = '';
+          setSessionId(storedId || '');
+          return;
+        }
+        // Table is available: create a session, mark it owned by this phone.
         const sessionDoc = await addDoc(sessionsRef, {
           tableTokenId: token,
           tableId: tableData.tableId,
@@ -393,11 +405,16 @@ export default function QRMenuPage() {
           <p className="waiter-sub">
             Once the owner/manager completes the payment, you will be able to order from this table.
           </p>
-          {(tableInfo?.runningTotal ?? 0) > 0 && (
+          {((tableInfo?.grandTotal ?? 0) > 0 || (tableInfo?.runningTotal ?? 0) > 0) && (
             <p className="waiter-total">
-              Current bill: {config?.currencySymbol || 'Rs'} {(tableInfo?.runningTotal ?? 0).toFixed(0)}
+              Current bill:{' '}
+              {config?.currencySymbol || 'Rs'}{' '}
+              {((tableInfo?.grandTotal ?? 0) > 0 ? tableInfo!.grandTotal! : tableInfo!.runningTotal!).toFixed(0)}
             </p>
           )}
+          <p className="waiter-quote">
+            “Good food and great company are worth the wait.” — 🍽️ Our team is preparing something delicious for you.
+          </p>
         </div>
       </div>
     );
