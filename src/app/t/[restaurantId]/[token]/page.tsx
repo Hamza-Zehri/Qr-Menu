@@ -392,6 +392,9 @@ export default function QRMenuPage() {
 
   // ── Table occupied gate (the core business rule) ──
   if (!isTableOpen()) {
+    const bill = (tableInfo?.grandTotal ?? 0) > 0
+      ? tableInfo!.grandTotal!
+      : (tableInfo?.runningTotal ?? 0);
     return (
       <div className="container waiter-screen">
         <div className="header">
@@ -401,21 +404,37 @@ export default function QRMenuPage() {
         <div className="waiter-card">
           <div className="waiter-icon">⏳</div>
           <h2>Please Wait</h2>
-          <p>This table is currently occupied and the bill has not been paid yet.</p>
           <p className="waiter-sub">
-            Once the owner/manager completes the payment, you will be able to order from this table.
+            This table is currently occupied and the bill has not been paid yet.
           </p>
-          {((tableInfo?.grandTotal ?? 0) > 0 || (tableInfo?.runningTotal ?? 0) > 0) && (
-            <p className="waiter-total">
-              Current bill:{' '}
-              {config?.currencySymbol || 'Rs'}{' '}
-              {((tableInfo?.grandTotal ?? 0) > 0 ? tableInfo!.grandTotal! : tableInfo!.runningTotal!).toFixed(0)}
-            </p>
+          <div className="waiter-note">
+            <span className="waiter-note-icon">🔔</span>
+            <div className="waiter-note-text">
+              <b>Keep this page open.</b>
+              <span>
+                Your screen updates automatically — please <b>don&apos;t refresh or
+                rescan</b>. The moment the owner/manager settles the bill, you can
+                start ordering right here.
+              </span>
+            </div>
+          </div>
+          {bill > 0 && (
+            <div className="waiter-bill">
+              <span className="waiter-bill-label">Current Bill</span>
+              <span className="waiter-bill-amount">
+                {config?.currencySymbol || 'Rs'} {bill.toFixed(0)}
+              </span>
+              <span className="waiter-bill-updates">Updates live as your order changes</span>
+            </div>
           )}
           <p className="waiter-quote">
-            “Good food and great company are worth the wait.” — 🍽️ Our team is preparing something delicious for you.
+            “Good food and great company are worth the wait.” — 🍽️ Our team is
+            preparing something delicious for you.
           </p>
         </div>
+        <footer className="waiter-footer">
+          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+        </footer>
       </div>
     );
   }
@@ -577,6 +596,10 @@ export default function QRMenuPage() {
           </div>
         </div>
       )}
+
+      <footer className="menu-footer">
+        Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+      </footer>
     </div>
   );
 }
