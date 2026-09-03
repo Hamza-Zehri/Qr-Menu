@@ -478,3 +478,233 @@ body.has-cart {
   text-align: center;
   font-size: clamp(14px, 4vw, 16px);
 }
+
+/* ───────────────── Admin Dashboard ───────────────── */
+.admin {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 18px 60px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-logo {
+  font-size: 40px;
+  background: var(--primary-light);
+  border-radius: 14px;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+}
+
+.admin-title h1 {
+  margin: 0;
+  font-size: clamp(20px, 5vw, 28px);
+}
+
+.admin-title p {
+  margin: 4px 0 0;
+  color: var(--foreground);
+  opacity: 0.6;
+  font-size: 13px;
+}
+
+.admin-summary {
+  display: flex;
+  gap: 12px;
+}
+
+.summary-card {
+  background: var(--secondary);
+  border-radius: 12px;
+  padding: 12px 18px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.summary-card span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.summary-card b {
+  display: block;
+  font-size: 24px;
+  margin-top: 2px;
+}
+
+.summary-card.cart b { color: var(--warning); }
+.summary-card.kitchen b { color: var(--danger); }
+
+.admin-rid-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-rid-form input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.admin-rid-form button {
+  padding: 12px 20px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.admin-error {
+  background: #fef2f2;
+  color: var(--danger);
+  border: 1px solid #fecaca;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-section {
+  margin-bottom: 34px;
+}
+
+.admin-section h2 {
+  font-size: 19px;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.table-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--secondary);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.table-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-name {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.table-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border: 1px solid;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.table-floor {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+.table-counts {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.count-box {
+  flex: 1;
+  background: var(--secondary);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.count-box.cart.active {
+  background: #fef3c7;
+  border: 1px solid var(--warning);
+}
+
+.count-box.kitchen.active {
+  background: #fee2e2;
+  border: 1px solid var(--danger);
+}
+
+.count-label {
+  display: block;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.count-box b {
+  font-size: 20px;
+}
+
+.count-amount {
+  display: block;
+  font-size: 11px;
+  opacity: 0.65;
+}
+
+.menu-group h3 {
+  font-size: 15px;
+  margin: 22px 0 10px;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.availability {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.availability.off {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px;
+  background: var(--secondary);
+  border-radius: 12px;
+  color: var(--foreground);
+  opacity: 0.6;
+}
