@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { db } from '@/lib/firebase';
 import {
   collection,
@@ -72,6 +72,9 @@ export default function QRMenuPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [sessionId, setSessionId] = useState('');
+  // The ID of the active session for this table that THIS phone owns/stored.
+  // Used to let the ordering phone keep ordering while the table is occupied.
+  const ownerSessionIdRef = useRef('');
   const [orderId, setOrderId] = useState('');
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [placedOrder, setPlacedOrder] = useState<{
@@ -182,27 +185,57 @@ export default function QRMenuPage() {
   const createSession = async (rid: string, token: string, tableData: any) => {
     try {
       const sessionsRef = collection(db, `restaurants/${rid}/sessions`);
+      // Look up any active session for this table.
       const q = query(sessionsRef, where('tableTokenId', '==', token), where('status', '==', 'active'));
       const existing = await getDocs(q);
-      if (!existing.empty) {
-        setSessionId(existing.docs[0].id);
+      const activeSession = existing.empty ? null : existing.docs[0];
+      const activeId = activeSession ? activeSession.id : '';
+
+      // This phone remembers the session it started with (unless the session
+      // has since been paid/closed). The owner phone keeps ordering after the
+      // table turns occupied; other phones see the table as busy.
+      let storedId = '';
+      try { storedId = window.localStorage.getItem(`${rid}:${token}:session`) || ''; } catch {}
+
+      if (!activeSession) {
+        // No active session: create one, mark it owned by this phone.
+        const sessionDoc = await addDoc(sessionsRef, {
+          tableTokenId: token,
+          tableId: tableData.tableId,
+          tableName: tableData.tableName,
+          status: 'active',
+          createdAt: serverTimestamp(),
+        });
+        setSessionId(sessionDoc.id);
+        ownerSessionIdRef.current = sessionDoc.id;
+        try { window.localStorage.setItem(`${rid}:${token}:session`, sessionDoc.id); } catch {}
         return;
       }
-      const sessionDoc = await addDoc(sessionsRef, {
-        tableTokenId: token,
-        tableId: tableData.tableId,
-        tableName: tableData.tableName,
-        status: 'active',
-        createdAt: serverTimestamp(),
-      });
-      setSessionId(sessionDoc.id);
+
+      if (activeId && storedId === activeId) {
+        // This phone owns the active session -> it may keep ordering.
+        setSessionId(activeId);
+        ownerSessionIdRef.current = activeId;
+        return;
+      }
+
+      // An active session exists that this phone did not start.
+      setSessionId(storedId || activeId);
+      ownerSessionIdRef.current = '';
     } catch (err) {
       console.error('Error creating session:', err);
     }
   };
 
   const isTableOpen = () => {
-    return !tableInfo || tableInfo.status === 'available';
+    if (!tableInfo) return false;
+    if (tableInfo.status === 'available') return true;
+    // Occupied/busy: only the phone that owns the active session may order.
+    if (ownerSessionIdRef.current !== '') {
+      // This phone owns a running session (it has already ordered on this table).
+      return true;
+    }
+    return false;
   };
 
   const addToCart = (item: MenuItem) => {
