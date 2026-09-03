@@ -1024,3 +1024,147 @@ body.has-cart {
   opacity: 0.5;
   line-height: 1.5;
 }
+
+/* ─── Order confirmation ─── */
+.confirmation {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary);
+  padding: 20px;
+}
+
+.confirmation-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 22px;
+  text-align: center;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-check {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 34px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.confirmation-card h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.confirmation-sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.65;
+}
+
+.confirmation-table {
+  display: inline-block;
+  margin: 14px 0 6px;
+  background: var(--primary-light);
+  color: #1a56db;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.confirmation-items {
+  margin-top: 14px;
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+  text-align: left;
+}
+
+.confirmation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.conf-row-name { font-weight: 600; }
+.conf-row-price { opacity: 0.75; }
+
+.confirmation-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 16px;
+}
+
+.confirmation-total b { font-size: 18px; color: var(--primary); }
+
+.confirmation-hint {
+  margin: 14px 0 0;
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+/* ─── Mobile responsiveness (menu) ─── */
+@media (max-width: 640px) {
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .menu-item {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .menu-item-image,
+  .menu-item-placeholder {
+    width: 92px;
+    height: 92px;
+    min-width: 92px;
+    min-height: 92px;
+  }
+
+  .admin-kpis {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .kpi {
+    padding: 14px;
+  }
+
+  .table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .admin-rid-form {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-brand-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .kpi-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .kpi-meta b {
+    font-size: 18px;
+  }
+}

@@ -74,6 +74,11 @@ export default function QRMenuPage() {
   const [sessionId, setSessionId] = useState('');
   const [orderId, setOrderId] = useState('');
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<{
+    id: string;
+    items: { name: string; qty: number; price: number }[];
+    total: number;
+  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [started, setStarted] = useState(false);
 
@@ -268,6 +273,15 @@ export default function QRMenuPage() {
       });
 
       setOrderId(orderDoc.id);
+      setPlacedOrder({
+        id: orderDoc.id,
+        items: cart.map((c) => ({
+          name: c.menuItem.name,
+          qty: c.quantity,
+          price: c.menuItem.price,
+        })),
+        total: getCartTotal(),
+      });
       setCart([]);
       setSpecialInstructions('');
     } catch (err) {
@@ -284,6 +298,51 @@ export default function QRMenuPage() {
 
   if (error) {
     return <div className="loading">{error}</div>;
+  }
+
+  // ── Order confirmation: show exactly what the customer ordered ──
+  if (placedOrder) {
+    return (
+      <div className="container confirmation">
+        <div className="confirmation-card">
+          <div className="confirmation-check">✓</div>
+          <h1>Order Received!</h1>
+          <p className="confirmation-sub">
+            {config?.name || 'Restaurant'} — your order has been sent to the kitchen.
+          </p>
+          <div className="confirmation-table">
+            Table {tableInfo?.tableName}
+          </div>
+
+          <div className="confirmation-items">
+            {placedOrder.items.map((it, i) => (
+              <div key={i} className="confirmation-row">
+                <span className="conf-row-name">{it.qty}× {it.name}</span>
+                <span className="conf-row-price">
+                  {config?.currencySymbol || 'Rs'} {(it.price * it.qty).toFixed(0)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="confirmation-total">
+            <span>Total</span>
+            <b>{config?.currencySymbol || 'Rs'} {placedOrder.total.toFixed(0)}</b>
+          </div>
+
+          <p className="confirmation-hint">
+            Please wait while the restaurant confirms and prepares your order.
+          </p>
+          <button
+            className="btn-primary"
+            onClick={() => setPlacedOrder(null)}
+            style={{ marginTop: '16px', width: '100%' }}
+          >
+            View Menu Again
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // ── Table occupied gate (the core business rule) ──
