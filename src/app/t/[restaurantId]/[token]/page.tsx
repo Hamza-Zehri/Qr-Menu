@@ -450,10 +450,10 @@ export default function QRMenuPage() {
           >
             View Menu Again
           </button>
+          <footer className="confirmation-footer">
+            Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+          </footer>
         </div>
-        <footer className="waiter-footer">
-          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
-        </footer>
       </div>
     );
   }

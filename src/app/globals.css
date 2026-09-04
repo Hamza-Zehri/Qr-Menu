@@ -1294,6 +1294,22 @@ body.has-cart {
   opacity: 0.55;
 }
 
+/* Credit footer placed inside the order-received card. */
+.confirmation-footer {
+  margin: 22px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.confirmation-footer b {
+  color: #6b7280;
+  font-weight: 600;
+}
+
 /* ─── Mobile responsiveness (menu) ─── */
 @media (max-width: 640px) {
   .menu-grid {
