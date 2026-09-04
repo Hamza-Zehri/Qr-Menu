@@ -451,6 +451,9 @@ export default function QRMenuPage() {
             View Menu Again
           </button>
         </div>
+        <footer className="waiter-footer">
+          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+        </footer>
       </div>
     );
   }
@@ -527,6 +530,9 @@ export default function QRMenuPage() {
             Scan again or ask your host for help. Items you order go straight to the kitchen.
           </p>
         </div>
+        <footer className="waiter-footer">
+          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+        </footer>
       </div>
     );
   }
