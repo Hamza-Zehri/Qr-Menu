@@ -1191,6 +1191,18 @@ body.has-cart {
   line-height: 1.5;
 }
 
+/* Credit footer placed inside the landing card. A top divider keeps it
+   visually grouped with the card instead of floating off the page. */
+.landing-footer {
+  margin: 22px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 /* ─── Order confirmation ─── */
 .confirmation {
   min-height: 100dvh;

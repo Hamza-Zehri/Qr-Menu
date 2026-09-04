@@ -529,10 +529,10 @@ export default function QRMenuPage() {
           <p className="landing-hint">
             Scan again or ask your host for help. Items you order go straight to the kitchen.
           </p>
+          <footer className="waiter-footer landing-footer">
+            Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
+          </footer>
         </div>
-        <footer className="waiter-footer">
-          Powered by <b>QR Menu</b> — developed by <b>Engr. Hamza Asad</b>
-        </footer>
       </div>
     );
   }
