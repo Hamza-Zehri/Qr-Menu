@@ -103,9 +103,19 @@ export default function QRMenuPage() {
   }, []);
 
   // Live menu subscription so name/price/image changes appear in real time
-  // without reloading the page.
+  // without reloading the page. Also serves a cached copy immediately so the
+  // menu appears instantly on slow or unstable connections.
   useEffect(() => {
     if (!restaurantId) return;
+    const cacheKey = `qr:menu:${restaurantId}`;
+    // Hydrate from local cache first (fast first paint on slow networks).
+    try {
+      const cached = window.localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached) as MenuItem[];
+        setMenuItems(parsed);
+      }
+    } catch {}
     const cs = collection(db, `restaurants/${restaurantId}/menu`);
     const q = query(cs, orderBy('sortOrder'));
     const unsub = onSnapshot(
@@ -116,6 +126,7 @@ export default function QRMenuPage() {
           ...d.data(),
         })) as MenuItem[]).filter((i) => i.isAvailable !== false);
         setMenuItems(items);
+        try { window.localStorage.setItem(cacheKey, JSON.stringify(items)); } catch {}
       },
       (err) => console.error('Error streaming menu:', err)
     );
@@ -142,7 +153,11 @@ export default function QRMenuPage() {
 
   const loadData = async (rid: string, token: string) => {
     try {
-      const restDoc = await getDoc(doc(db, 'restaurants', rid));
+      // Fetch config + table in parallel for faster first paint.
+      const [restDoc, tableSnapshot] = await Promise.all([
+        getDoc(doc(db, 'restaurants', rid)),
+        getDoc(doc(db, `restaurants/${rid}/tables/${token}`)),
+      ]);
       if (!restDoc.exists()) {
         setError('Restaurant not found');
         setLoading(false);
@@ -150,10 +165,7 @@ export default function QRMenuPage() {
       }
       const data = restDoc.data();
       setConfig(data.config);
-      setClosed(!!data.config?.closed);
 
-      const tableRef = doc(db, `restaurants/${rid}/tables/${token}`);
-      const tableSnapshot = await getDoc(tableRef);
       if (!tableSnapshot.exists()) {
         setError('Table not found');
         setLoading(false);
@@ -174,9 +186,12 @@ export default function QRMenuPage() {
         grandTotal: td.grandTotal,
       });
 
-      await listenTableStatus(rid, token);
-      await createSession(rid, token, td);
+      // The menu is streamed live via its own onSnapshot; don't make the
+      // customer wait for the table-status listener or session handshake before
+      // showing the menu. Run those in the background.
       setLoading(false);
+      listenTableStatus(rid, token);
+      void createSession(rid, token, td);
     } catch (err) {
       console.error('Error loading table:', err);
       setError('Failed to load table information');
@@ -551,7 +566,9 @@ export default function QRMenuPage() {
     <div className={`container ${cart.length > 0 ? 'cart-spacer' : ''}`}>
       <div className="header">
         <div className="header-brand">
-          {config?.logoUrl && <img src={config.logoUrl} alt="logo" className="header-logo" />}
+          {config?.logoUrl && (
+            <img src={config.logoUrl} alt="logo" className="header-logo" loading="lazy" decoding="async" />
+          )}
           <h1>{config?.name || 'Restaurant'}</h1>
         </div>
         <p>Table: {tableInfo?.tableName} | {tableInfo?.floorName}</p>
@@ -582,7 +599,13 @@ export default function QRMenuPage() {
         {filteredItems.map((item) => (
           <div key={item.id} className="menu-item">
             {item.imageUrl ? (
-              <img src={item.imageUrl} alt={item.name} className="menu-item-image" />
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="menu-item-image"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <div className="menu-item-placeholder">🍽️</div>
             )}
